@@ -18,6 +18,12 @@ workspaces:
     * Launch
 
     The Ground Control UI will be available on [http://localhost:3335](http://localhost:3335).
+
+    To release, you need `goreleaser`. On macOS:
+
+    ```
+    brew install goreleaser/tap/goreleaser
+    ```
   projects:
   - slug: groundcontrol
     repository: git@github.com:stratumn/groundcontrol.git
@@ -55,3 +61,18 @@ workspaces:
       - groundcontrol-ui
       commands:
       - spawn PORT=3335 REACT_APP_GROUNDCONTROL_PORT=3334 yarn dev
+  - name: Release
+    variables:
+    - name: GROUNDCONTROL_RELEASE_VERSION
+    - default: vX.X.X
+    steps:
+    - projects:
+      - groundcontrol
+      - groundcontrol-ui
+      commands:
+      - git tag $GROUNDCONTROL_RELEASE_VERSION
+      - git push origin $GROUNDCONTROL_RELEASE_VERSION
+    - projects:
+      - groundcontrol
+      commands:
+      - goreleaser
