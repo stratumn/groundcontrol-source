@@ -50,8 +50,8 @@ workspaces:
     - projects:
       - groundcontrol
       commands:
-      - go run . --listen-address=:3334
+      - spawn go run . --listen-address=:3334
     - projects:
       - groundcontrol-ui
       commands:
-      - PORT=3335 GROUNDCONTROL_PORT=3334 yarn dev
+      - spawn PORT=3335 GROUNDCONTROL_PORT=3334 yarn dev
