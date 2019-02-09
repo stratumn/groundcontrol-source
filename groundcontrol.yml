@@ -1,0 +1,57 @@
+workspaces:
+- name: Ground Control
+  slug: groundcontrol
+  description: A workspace containing all the master branches of Ground Control.
+  notes: |
+    ## Installation Notes
+
+    You need:
+
+    - Go >= v1.11
+    - Node
+    - Yarn
+
+    To launch the app, run these tasks in order:
+
+    * Install UI Dependencies
+    * Generate Go Code
+    * Launch
+
+    The Ground Control UI will be available on [http://localhost:3335](http://localhost:3335).
+  projects:
+  - slug: groundcontrol
+    repository: git@github.com:stratumn/groundcontrol.git
+    branch: master
+    description: The main Ground Control application.
+  - slug: groundcontrol-ui
+    repository: git@github.com:stratumn/groundcontrol-ui.git
+    branch: master
+    description: The UI for Ground Control.
+  - slug: groundcontrol-source
+    repository: git@github.com:stratumn/groundcontrol-source.git
+    branch: master
+    description: The Ground Control source for Ground Control development.
+  tasks:
+  - name: Install UI Dependencies
+    steps:
+    - projects:
+      - groundcontrol-ui
+      commands:
+      - yarn install
+  - name: Generate Go Code
+    steps:
+    - projects:
+      - groundcontrol
+      commands:
+      - go generate ./...
+      - gofmt -w $(find . -name 'auto_*.go')
+  - name: Launch
+    steps:
+    - projects:
+      - groundcontrol
+      commands:
+      - go run . --listen-address=:3334
+    - projects:
+      - groundcontrol-ui
+      commands:
+      - PORT=3335 GROUNDCONTROL_PORT=3334 yarn dev
