@@ -54,4 +54,4 @@ workspaces:
     - projects:
       - groundcontrol-ui
       commands:
-      - spawn PORT=3335 GROUNDCONTROL_PORT=3334 yarn dev
+      - spawn PORT=3335 REACT_APP_GROUNDCONTROL_PORT=3334 yarn dev
