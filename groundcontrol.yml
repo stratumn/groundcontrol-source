@@ -82,7 +82,7 @@ workspaces:
   - name: Release
     variables:
     - name: GROUNDCONTROL_RELEASE_VERSION
-    - default: vX.X.X
+      default: vX.X.X
     steps:
     - projects:
       - groundcontrol
