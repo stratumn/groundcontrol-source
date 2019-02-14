@@ -74,7 +74,7 @@ workspaces:
     - projects:
       - groundcontrol
       commands:
-      - spawn go run . --listen-address=:3334
+      - spawn go run -race . --listen-address=:3334
     - projects:
       - groundcontrol-ui
       commands:
