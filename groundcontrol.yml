@@ -45,15 +45,15 @@ workspaces:
   projects:
   - slug: groundcontrol
     repository: git@github.com:stratumn/groundcontrol.git
-    branch: master
+    reference: refs/heads/master
     description: The main Ground Control application.
   - slug: groundcontrol-ui
     repository: git@github.com:stratumn/groundcontrol-ui.git
-    branch: master
+    reference: refs/heads/master
     description: The UI for Ground Control.
   - slug: groundcontrol-source
     repository: git@github.com:stratumn/groundcontrol-source.git
-    branch: master
+    reference: refs/heads/master
     description: The Ground Control source for Ground Control development.
   tasks:
   - name: Install UI Dependencies
