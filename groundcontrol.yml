@@ -33,14 +33,15 @@ workspaces:
         
     #### Server
         
-    - GraphQL models should be *pure*. Mutations should create a new copy of the model. Avoid pointer accessors for models.
-    - Reference GraphQL models by ID. Do not keep pointers. Do not pass models around.
-    - Models should only store GraphQL fields and IDs of nodes they reference. They must not store a mutex. Use `NodeManager.Lock()`.
-    - Queries must have no side effects (except appending the log). This may require more mutations triggered by the client.
+    - Use pointers to models with care. It's safer to pass a copy or the ID of a model when reasonable.
+    - Models should only store GraphQL fields and IDs of nodes they reference. They must not store a mutex or things that are not safe to copy.
+    - Queries must have no side effects (except appending the log).
         
-    #### Client
+    #### UI
         
-    - Queries, mutations, subscriptions, and events must be handled at the top level.
+    - Queries, mutations, subscriptions, and events should be handled as high as reasonably possible up the component tree.
+    - Use snapshot testing to detect UI changes.
+    - Use regular assertions for tests that shouldn't fail due to small UI changes.
     - Avoid using `@relay(mask: false)`.
   projects:
   - slug: groundcontrol
