@@ -17,7 +17,7 @@ workspaces:
     * Generate Go Code
     * Launch
 
-    The Ground Control UI will be available on [http://localhost:3335](http://localhost:3335).
+    By default, the Ground Control UI will be available on [http://localhost:3335](http://localhost:3335).
 
     To release, you need `goreleaser`. On macOS:
 
@@ -43,6 +43,7 @@ workspaces:
     - Use snapshot testing to detect UI changes.
     - Use regular assertions for tests that shouldn't fail due to small UI changes.
     - Avoid using `@relay(mask: false)`.
+
   projects:
   - slug: groundcontrol
     repository: git@github.com:stratumn/groundcontrol.git
@@ -56,6 +57,28 @@ workspaces:
     repository: git@github.com:stratumn/groundcontrol-source.git
     reference: refs/heads/master
     description: The Ground Control source for Ground Control development.
+
+  services:
+  - name: Server
+    variables:
+    - name: GROUNDCONTROL_SERVER_PORT
+      default: 3334
+    project: groundcontrol
+    command: go run -race . --listen-address=:$GROUNDCONTROL_SERVER_PORT
+    before:
+    - Generate Go Code
+  - name: UI
+    variables:
+    - name: GROUNDCONTROL_UI_PORT
+      default: 3335
+    project: groundcontrol-ui
+    command: PORT=$GROUNDCONTROL_UI_PORT REACT_APP_GROUNDCONTROL_PORT=$GROUNDCONTROL_SERVER_PORT yarn dev
+    before:
+    - Install UI Dependencies
+    - Healthcheck Server
+    needs:
+    - Server
+
   tasks:
   - name: Install UI Dependencies
     steps:
@@ -70,16 +93,14 @@ workspaces:
       commands:
       - go generate ./...
       - gofmt -w $(find . -name 'auto_*.go')
-  - name: Launch
+  - name: Healthcheck Server
+    variables:
+    - name: GROUNDCONTROL_SERVER_PORT
     steps:
     - projects:
       - groundcontrol
       commands:
-      - spawn go run -race . --listen-address=:3334
-    - projects:
-      - groundcontrol-ui
-      commands:
-      - spawn PORT=3335 REACT_APP_GROUNDCONTROL_PORT=3334 yarn dev
+      - for i in {1..10}; do curl -fs localhost:$GROUNDCONTROL_SERVER_PORT/graphql > /dev/null && exit 0 || sleep 1; done; exit 1
   - name: Release
     variables:
     - name: GROUNDCONTROL_RELEASE_VERSION
