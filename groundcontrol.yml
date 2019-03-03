@@ -64,7 +64,7 @@ workspaces:
     - name: GROUNDCONTROL_SERVER_PORT
       default: 3334
     project: groundcontrol
-    command: go run -race . --listen-address=:$GROUNDCONTROL_SERVER_PORT
+    command: GROUNDCONTROL_LISTEN_ADDRESS=:$GROUNDCONTROL_SERVER_PORT go run github.com/cortesi/modd/cmd/modd
     before:
     - Generate Go Code
   - name: UI
