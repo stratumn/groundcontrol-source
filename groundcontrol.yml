@@ -17,7 +17,7 @@ workspaces:
     * Generate Go Code
     * Launch
 
-    By default, the Ground Control UI will be available on [http://localhost:3335](http://localhost:3335).
+    By default, the Ground Control UI will be available on [http://localhost:4446](http://localhost:4446).
 
     To release, you need `goreleaser`. On macOS:
 
@@ -62,15 +62,15 @@ workspaces:
   - name: Server
     variables:
     - name: GROUNDCONTROL_SERVER_PORT
-      default: 3334
+      default: 4445
     project: groundcontrol
-    command: GROUNDCONTROL_LISTEN_ADDRESS=:$GROUNDCONTROL_SERVER_PORT go run github.com/cortesi/modd/cmd/modd
+    command: GROUNDCONTROL_LISTEN_ADDRESS=localhost:$GROUNDCONTROL_SERVER_PORT go run github.com/cortesi/modd/cmd/modd
     before:
     - Generate Go Code
   - name: UI
     variables:
     - name: GROUNDCONTROL_UI_PORT
-      default: 3335
+      default: 4446
     project: groundcontrol-ui
     command: PORT=$GROUNDCONTROL_UI_PORT REACT_APP_GROUNDCONTROL_PORT=$GROUNDCONTROL_SERVER_PORT yarn dev
     before:
