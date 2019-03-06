@@ -1,110 +1,110 @@
 workspaces:
-- name: Ground Control
-  slug: groundcontrol
-  description: A workspace containing all the master branches of Ground Control.
-  notes: |
-    ## Installation Notes
+  - name: Ground Control
+    slug: groundcontrol
+    description: A workspace containing all the master branches of Ground Control.
+    notes: |
+      ## Installation Notes
 
-    You need:
+      You need:
 
-    - Go >= v1.11
-    - Node
-    - Yarn
+      - Go >= v1.11
+      - Node
+      - Yarn
 
-    By default, the Ground Control UI will be available on [http://localhost:4446](http://localhost:4446).
+      By default, the Ground Control UI will be available on [http://localhost:4446](http://localhost:4446).
 
-    To release, you need `goreleaser`. On macOS:
+      To release, you need `goreleaser`. On macOS:
 
-    ```
-    brew install goreleaser/tap/goreleaser
-    ```
+      ```
+      brew install goreleaser/tap/goreleaser
+      ```
 
-    ### Notes
-        
-    #### General
-        
-    - Lines of code don't matter if the code can be generated. Focus on writing repeatable code then write a generator once it makes sense.
-        
-    #### Server
-        
-    - Models should only store GraphQL fields and IDs of nodes they reference. They must not store a mutex or things that are not safe to copy.
-    - Queries must have no side effects (except appending the log).
-        
-    #### UI
-        
-    - Queries, mutations, subscriptions, and events should be handled as high as reasonably possible up the component tree.
-    - Use snapshot testing to detect UI changes.
-    - Use normal assertions for tests that shouldn't fail due to small UI changes.
+      ### Notes
+          
+      #### General
+          
+      - Lines of code don't matter if the code can be generated. Focus on writing repeatable code then write a generator once it makes sense.
+          
+      #### Server
+          
+      - Models should only store GraphQL fields and IDs of nodes they reference. They must not store a mutex or things that are not safe to copy.
+      - Queries must have no side effects (except appending the log).
+          
+      #### UI
+          
+      - Queries, mutations, subscriptions, and events should be handled as high as reasonably possible up the component tree.
+      - Use snapshot testing to detect UI changes.
+      - Use normal assertions for tests that shouldn't fail due to small UI changes.
 
-  projects:
-  - slug: groundcontrol
-    repository: git@github.com:stratumn/groundcontrol.git
-    reference: refs/heads/master
-    description: The main Ground Control application.
-  - slug: groundcontrol-ui
-    repository: git@github.com:stratumn/groundcontrol-ui.git
-    reference: refs/heads/master
-    description: The UI for Ground Control.
-  - slug: groundcontrol-source
-    repository: git@github.com:stratumn/groundcontrol-source.git
-    reference: refs/heads/master
-    description: The Ground Control source for Ground Control development.
+    projects:
+      - slug: groundcontrol
+        repository: git@github.com:stratumn/groundcontrol.git
+        reference: refs/heads/master
+        description: The main Ground Control application.
+      - slug: groundcontrol-ui
+        repository: git@github.com:stratumn/groundcontrol-ui.git
+        reference: refs/heads/master
+        description: The UI for Ground Control.
+      - slug: groundcontrol-source
+        repository: git@github.com:stratumn/groundcontrol-source.git
+        reference: refs/heads/master
+        description: The Ground Control source for Ground Control development.
 
-  services:
-  - name: Server
-    variables:
-    - name: GROUNDCONTROL_SERVER_PORT
-      default: 4445
-    project: groundcontrol
-    command: GROUNDCONTROL_LISTEN_ADDRESS=localhost:$GROUNDCONTROL_SERVER_PORT go run github.com/cortesi/modd/cmd/modd
-    before:
-    - Generate Go Code
-  - name: UI
-    variables:
-    - name: GROUNDCONTROL_UI_PORT
-      default: 4446
-    project: groundcontrol-ui
-    command: PORT=$GROUNDCONTROL_UI_PORT REACT_APP_GROUNDCONTROL_PORT=$GROUNDCONTROL_SERVER_PORT yarn dev
-    before:
-    - Install UI Dependencies
-    - Healthcheck Server
-    needs:
-    - Server
+    services:
+      - name: Server
+        variables:
+          - name: GROUNDCONTROL_SERVER_PORT
+            default: 4445
+        project: groundcontrol
+        command: GROUNDCONTROL_LISTEN_ADDRESS=localhost:$GROUNDCONTROL_SERVER_PORT go run github.com/cortesi/modd/cmd/modd
+        before:
+          - Generate Go Code
+      - name: UI
+        variables:
+          - name: GROUNDCONTROL_UI_PORT
+            default: 4446
+        project: groundcontrol-ui
+        command: PORT=$GROUNDCONTROL_UI_PORT REACT_APP_GROUNDCONTROL_PORT=$GROUNDCONTROL_SERVER_PORT yarn dev
+        before:
+          - Install UI Dependencies
+          - Healthcheck Server
+        needs:
+          - Server
 
-  tasks:
-  - name: Install UI Dependencies
-    steps:
-    - projects:
-      - groundcontrol-ui
-      commands:
-      - yarn install
-  - name: Generate Go Code
-    steps:
-    - projects:
-      - groundcontrol
-      commands:
-      - go generate ./...
-      - gofmt -w $(find . -name 'auto_*.go')
-  - name: Healthcheck Server
-    variables:
-    - name: GROUNDCONTROL_SERVER_PORT
-    steps:
-    - projects:
-      - groundcontrol
-      commands:
-      - for i in {1..10}; do curl -fs localhost:$GROUNDCONTROL_SERVER_PORT/graphql > /dev/null && exit 0 || sleep 1; done; exit 1
-  - name: Release
-    variables:
-    - name: GROUNDCONTROL_RELEASE_VERSION
-      default: vX.X.X
-    steps:
-    - projects:
-      - groundcontrol
-      - groundcontrol-ui
-      commands:
-      - git tag $GROUNDCONTROL_RELEASE_VERSION
-      - git push origin $GROUNDCONTROL_RELEASE_VERSION
-    - projects:
-      - groundcontrol
-      commands:
-      - goreleaser
+    tasks:
+      - name: Install UI Dependencies
+        steps:
+          - projects:
+              - groundcontrol-ui
+            commands:
+              - yarn install
+      - name: Generate Go Code
+        steps:
+          - projects:
+              - groundcontrol
+            commands:
+              - go generate ./...
+              - gofmt -w $(find . -name 'auto_*.go')
+      - name: Healthcheck Server
+        variables:
+          - name: GROUNDCONTROL_SERVER_PORT
+        steps:
+          - projects:
+              - groundcontrol
+            commands:
+              - for i in {1..10}; do curl -fs localhost:$GROUNDCONTROL_SERVER_PORT/graphql > /dev/null && exit 0 || sleep 1; done; exit 1
+      - name: Release
+        variables:
+          - name: GROUNDCONTROL_RELEASE_VERSION
+            default: vX.X.X
+        steps:
+          - projects:
+              - groundcontrol
+              - groundcontrol-ui
+            commands:
+              - git tag $GROUNDCONTROL_RELEASE_VERSION
+              - git push origin $GROUNDCONTROL_RELEASE_VERSION
+          - projects:
+              - groundcontrol
+            commands:
+              - goreleaser
