@@ -84,7 +84,6 @@ workspaces:
               - groundcontrol
             commands:
               - go generate ./...
-              - gofmt -w $(find . -name 'auto_*.go')
       - name: Healthcheck Server
         variables:
           - name: GROUNDCONTROL_SERVER_PORT
